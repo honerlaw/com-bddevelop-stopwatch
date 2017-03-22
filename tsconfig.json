@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "allowJs": true,
+    "jsx": "react",
+    "outDir": "bin",
+    "rootDir": "./typescript",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "moduleResolution": "node"
+  },
+  "filesGlob": [
+    "./typescript/**/*.ts",
+    "./typescript/**/*.tsx"
+  ],
+  "exclude": [
+    "bin",
+    "ios",
+    "android",
+    "index.ios.js",
+    "index.android.js",
+    "node_modules",
+    "__tests__"
+  ],
+  "compileOnSave": true
+}
