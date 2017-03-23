@@ -1,10 +1,10 @@
 import * as React from "react";
+import * as ReactRedux from "react-redux";
 import {
     View,
     Text,
     TextStyle,
     Navigator,
-    NavState,
     Route,
     TouchableOpacity,
     ViewStyle,
@@ -14,8 +14,13 @@ import {
 import Icon from "react-native-vector-icons/MaterialIcons";
 import StopwatchList from "./component/stopwatch-list";
 import Report from "./component/report";
-import {setStopwatches, getState} from "./store";
+import {mapStateToProps, IStoreState, IStoreDispatch, mapDispatchToProps} from "./store";
 import StopwatchData from "./stopwatch-data";
+import {getHighestLapCount} from "./util";
+
+interface IAppProps extends IStoreState, IStoreDispatch {
+
+}
 
 interface IStyles {
     navbar: ViewStyle;
@@ -62,44 +67,10 @@ const INITIAL_ROUTE: Route = {
     index: 0
 };
 
-const ROUTE_MAPPER = {
-    Title: (route: Route, nav: Navigator, index: number, navState: NavState): JSX.Element => {
-        return <View style={ STYLES.navbarTitle }>
-            <Text style={ STYLES.navbarTitleText }>stopwatch</Text>
-        </View>;
-    },
-    LeftButton: (route: Route, nav: Navigator, index: number, navState: NavState): JSX.Element => {
-        if (route.title === "report") {
-            return <TouchableOpacity onPress={ () => nav.pop() } style={ STYLES.button }>
-                <Icon name="chevron-left" size={ 30 } style={ STYLES.buttonText }/>
-            </TouchableOpacity>;
-        }
-        return <TouchableOpacity onPress={ () => report(nav) } style={ STYLES.button }>
-            <Icon name="assignment" size={ 20 } style={ STYLES.buttonText }/>
-        </TouchableOpacity>;
-    },
-    RightButton: (route: Route, nav: Navigator, index: number, navState: NavState): JSX.Element => {
-        if (route.title === "report") {
-            return null;
-        }
-        return <TouchableOpacity onPress={ add } style={ STYLES.button }>
-            <Icon name="alarm-add" size={ 20 } style={ STYLES.buttonText }/>
-        </TouchableOpacity>;
-    }
-};
-
 const report = (nav: Navigator) => {
     nav.push({
         title: "report"
     });
-};
-
-const add = () => {
-    const stopwatches: StopwatchData[] = getState().stopwatches;
-    stopwatches.push(new StopwatchData("Stopwatch " + stopwatches.length));
-
-    // create a shallow copy in a new array to trigger redux to update properly
-    setStopwatches(stopwatches.slice());
 };
 
 const getScene = (route: Route, navigator: Navigator) => {
@@ -118,7 +89,7 @@ const renderScene = (route: Route, navigator: Navigator) => {
     </View>;
 };
 
-const configureScene = (route: Route, routeStack: Route[]) => {
+const configureScene = (route: Route) => {
     switch (route.title) {
         case "report":
             return Navigator.SceneConfigs.FloatFromBottom;
@@ -127,11 +98,50 @@ const configureScene = (route: Route, routeStack: Route[]) => {
     }
 };
 
-export default class App extends React.Component<void, void> {
+class App extends React.Component<IAppProps, void> {
+
+    private routeMapper() {
+        return {
+            Title: (): JSX.Element => {
+                return <View style={ STYLES.navbarTitle }>
+                    <Text style={ STYLES.navbarTitleText }>stopwatch</Text>
+                </View>;
+            },
+            LeftButton: (route: Route, nav: Navigator): JSX.Element => {
+                if (route.title === "report") {
+                    return <TouchableOpacity onPress={ () => nav.pop() } style={ STYLES.button }>
+                        <Icon name="chevron-left" size={ 30 } style={ STYLES.buttonText }/>
+                    </TouchableOpacity>;
+                }
+                if (this.props.stopwatches.length === 0 || getHighestLapCount(this.props.stopwatches) === 0) {
+                    return null;
+                }
+                return <TouchableOpacity onPress={ () => report(nav) } style={ STYLES.button }>
+                    <Icon name="assignment" size={ 20 } style={ STYLES.buttonText }/>
+                </TouchableOpacity>;
+            },
+            RightButton: (route: Route): JSX.Element => {
+                if (route.title === "report") {
+                    return null;
+                }
+                return <TouchableOpacity onPress={ this.add.bind(this) } style={ STYLES.button }>
+                    <Icon name="alarm-add" size={ 20 } style={ STYLES.buttonText }/>
+                </TouchableOpacity>;
+            }
+        };
+    }
+
+    private add() {
+        const stopwatches: StopwatchData[] = this.props.stopwatches;
+        stopwatches.push(new StopwatchData("Stopwatch " + stopwatches.length));
+
+        // create a shallow copy in a new array to trigger redux to update properly
+        this.props.setStopwatches(stopwatches.slice());
+    }
 
     public render(): React.ReactElement<View> {
         return <Navigator
-            navigationBar={ <Navigator.NavigationBar style={ STYLES.navbar } routeMapper={ ROUTE_MAPPER } /> }
+            navigationBar={ <Navigator.NavigationBar style={ STYLES.navbar } routeMapper={ this.routeMapper() } /> }
             initialRoute={ INITIAL_ROUTE }
             renderScene={ renderScene }
             configureScene={ configureScene }
@@ -139,3 +149,5 @@ export default class App extends React.Component<void, void> {
     }
 
 }
+
+export default ReactRedux.connect<IStoreState, IStoreDispatch, IAppProps>(mapStateToProps, mapDispatchToProps)(App);

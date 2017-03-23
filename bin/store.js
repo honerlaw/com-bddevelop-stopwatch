@@ -1,16 +1,23 @@
 import { createStore } from "redux";
+import StopwatchData from "./stopwatch-data";
 var ActionType;
 (function (ActionType) {
     ActionType[ActionType["STOPWATCHES"] = 0] = "STOPWATCHES";
+    ActionType[ActionType["FORCE"] = 1] = "FORCE";
 })(ActionType || (ActionType = {}));
 const INITIAL_STATE = {
-    stopwatches: []
+    stopwatches: [new StopwatchData("Stopwatch 0")],
+    force: Math.random()
 };
 const reducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case ActionType.STOPWATCHES:
             return Object.assign({}, state, {
                 stopwatches: action.stopwatches
+            });
+        case ActionType.FORCE:
+            return Object.assign({}, state, {
+                force: action.force
             });
         default:
             return state;
@@ -31,14 +38,22 @@ export function setStopwatches(stopwatches, dispatch) {
         stopwatches
     }, dispatch);
 }
+export function setForce(force, dispatch) {
+    set({
+        type: ActionType.FORCE,
+        force
+    }, dispatch);
+}
 export function mapDispatchToProps(dispatch) {
     return {
-        setStopwatches: (stopwatches) => setStopwatches(stopwatches, dispatch)
+        setStopwatches: (stopwatches) => setStopwatches(stopwatches, dispatch),
+        setForce: (force) => setForce(force, dispatch)
     };
 }
 export function mapStateToProps(state) {
     return {
-        stopwatches: state.stopwatches
+        stopwatches: state.stopwatches,
+        force: state.force
     };
 }
 export function getState() {

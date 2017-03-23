@@ -11,4 +11,13 @@ function getAsTwoDigit(value) {
     }
     return val;
 }
+export function getHighestLapCount(stopwatches) {
+    let highest = 0;
+    stopwatches.forEach((stopwatch) => {
+        if (stopwatch.getLaps().length > highest) {
+            highest = stopwatch.getLaps().length;
+        }
+    });
+    return highest;
+}
 //# sourceMappingURL=util.js.map

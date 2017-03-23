@@ -26,6 +26,7 @@ interface IStyle {
     time: TextStyle;
     button: ViewStyle;
     buttonText: TextStyle;
+    lap: TextStyle;
 }
 
 const STYLES = StyleSheet.create<IStyle>({
@@ -65,7 +66,6 @@ const STYLES = StyleSheet.create<IStyle>({
         fontSize: 25
     },
     button: {
-        flex: 1,
         borderWidth: 1,
         borderColor: "#95a5a6",
         justifyContent: "center",
@@ -77,6 +77,10 @@ const STYLES = StyleSheet.create<IStyle>({
     },
     buttonText: {
         fontSize: 12
+    },
+    lap: {
+        fontSize: 11,
+        color: "#95a5a6"
     }
 });
 
@@ -125,6 +129,10 @@ class Stopwatch extends React.Component<IStopwatchProps, IStopwatchState> {
                 interval: null
             });
         }
+
+        // this is a weird hack that should be removed in the future
+        // it basically forces redux to notify that the state has changed because we use complex objects
+        this.props.setForce(Math.random());
     }
 
     private remove(): void {
@@ -137,6 +145,16 @@ class Stopwatch extends React.Component<IStopwatchProps, IStopwatchState> {
     private setTitle(title: string): void {
         this.setState({ title });
         this.props.stopwatch.setTitle(title);
+    }
+
+    private getLastLapInfo(): React.ReactElement<Text> {
+        const laps: number[] = this.props.stopwatch.getLaps();
+        if (laps.length > 0) {
+            return <Text style={ STYLES.lap }>
+                { "Lap " + laps.length + ": " + getFormattedTime(laps[ laps.length - 1 ]) }
+            </Text>;
+        }
+        return <Text style={ STYLES.lap }>no recorded laps</Text>;
     }
 
     public componentWillUnmount() {
@@ -159,6 +177,7 @@ class Stopwatch extends React.Component<IStopwatchProps, IStopwatchState> {
             <View style={ STYLES.bottomContainer }>
                 <View style={ STYLES.middleBigContainer }>
                     <Text style={ STYLES.time }>{ getFormattedTime(this.state.elapsed) }</Text>
+                    { this.getLastLapInfo() }
                 </View>
                 <View style={ STYLES.middleContainer }>
                     <TouchableOpacity style={ STYLES.button } onPress={ this.lapOrReset.bind(this) }>
@@ -171,6 +190,7 @@ class Stopwatch extends React.Component<IStopwatchProps, IStopwatchState> {
                     </TouchableOpacity>
                 </View>
             </View>
+
         </View>;
     }
 

@@ -41,7 +41,6 @@ const STYLES = StyleSheet.create({
         fontSize: 25
     },
     button: {
-        flex: 1,
         borderWidth: 1,
         borderColor: "#95a5a6",
         justifyContent: "center",
@@ -53,6 +52,10 @@ const STYLES = StyleSheet.create({
     },
     buttonText: {
         fontSize: 12
+    },
+    lap: {
+        fontSize: 11,
+        color: "#95a5a6"
     }
 });
 class Stopwatch extends React.Component {
@@ -97,6 +100,9 @@ class Stopwatch extends React.Component {
                 interval: null
             });
         }
+        // this is a weird hack that should be removed in the future
+        // it basically forces redux to notify that the state has changed because we use complex objects
+        this.props.setForce(Math.random());
     }
     remove() {
         const stopwatches = this.props.stopwatches;
@@ -107,6 +113,13 @@ class Stopwatch extends React.Component {
     setTitle(title) {
         this.setState({ title });
         this.props.stopwatch.setTitle(title);
+    }
+    getLastLapInfo() {
+        const laps = this.props.stopwatch.getLaps();
+        if (laps.length > 0) {
+            return React.createElement(Text, { style: STYLES.lap }, "Lap " + laps.length + ": " + getFormattedTime(laps[laps.length - 1]));
+        }
+        return React.createElement(Text, { style: STYLES.lap }, "no recorded laps");
     }
     componentWillUnmount() {
         if (this.state.interval !== null) {
@@ -121,7 +134,8 @@ class Stopwatch extends React.Component {
                     React.createElement(Icon, { name: "remove", size: 15 }))),
             React.createElement(View, { style: STYLES.bottomContainer },
                 React.createElement(View, { style: STYLES.middleBigContainer },
-                    React.createElement(Text, { style: STYLES.time }, getFormattedTime(this.state.elapsed))),
+                    React.createElement(Text, { style: STYLES.time }, getFormattedTime(this.state.elapsed)),
+                    this.getLastLapInfo()),
                 React.createElement(View, { style: STYLES.middleContainer },
                     React.createElement(TouchableOpacity, { style: STYLES.button, onPress: this.lapOrReset.bind(this) },
                         React.createElement(Text, { style: STYLES.buttonText }, this.isRunning() ? "lap" : "reset"))),
