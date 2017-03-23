@@ -26,7 +26,7 @@ const STYLES: IStyles = StyleSheet.create<IStyles>({
     }
 });
 
-const getCell = (content: string, key: number): JSX.Element => {
+const getCell = (content: string, key: any): JSX.Element => {
     return <View key={ key } style={ STYLES.cell }>
         <Text>{ content }</Text>
     </View>;
@@ -39,14 +39,14 @@ class Report extends React.Component<Partial<IStoreState>, void> {
 
         const left: JSX.Element[] = [ getCell(null, -1) ];
         for (let i = 0; i < highest; ++i) {
-            left.push(getCell("Lap " + i, i));
+            left.push(getCell("Lap " + i, "Lap " + i));
         }
 
         const columns: JSX.Element[][] = [ left ];
         this.props.stopwatches.forEach((stopwatch: StopwatchData, index: number) => {
-            const rows: JSX.Element[] = [ getCell(stopwatch.getTitle(), index) ];
-            stopwatch.getLaps().forEach((lap: number) => {
-                rows.push(getCell(getFormattedTime(lap), lap));
+            const rows: JSX.Element[] = [ getCell(stopwatch.getTitle(), stopwatch.getTitle() + index) ];
+            stopwatch.getLaps().forEach((lap: number, i: number) => {
+                rows.push(getCell(getFormattedTime(lap), stopwatch.getTitle() + lap + ":" + i));
             });
             columns.push(rows);
         });
@@ -55,14 +55,14 @@ class Report extends React.Component<Partial<IStoreState>, void> {
 
     public render(): React.ReactElement<View> {
 
-        return <ScrollView style={ STYLES.container }
-                           horizontal={ true }
-                           directionalLockEnabled={ false }>
-            { this.getColumns().map((rows, index: number) => {
-                return <View key={ index } style={ STYLES.column }>
-                    { rows }
-                </View>;
-            }) }
+        return <ScrollView style={ STYLES.container }>
+            <ScrollView style={ STYLES.container } horizontal={ true }>
+                { this.getColumns().map((rows, index: number) => {
+                    return <View key={ index } style={ STYLES.column }>
+                        { rows }
+                    </View>;
+                }) }
+            </ScrollView>
         </ScrollView>;
     }
 

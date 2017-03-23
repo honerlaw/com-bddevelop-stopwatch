@@ -26,22 +26,23 @@ class Report extends React.Component {
         const highest = getHighestLapCount(this.props.stopwatches);
         const left = [getCell(null, -1)];
         for (let i = 0; i < highest; ++i) {
-            left.push(getCell("Lap " + i, i));
+            left.push(getCell("Lap " + i, "Lap " + i));
         }
         const columns = [left];
         this.props.stopwatches.forEach((stopwatch, index) => {
-            const rows = [getCell(stopwatch.getTitle(), index)];
-            stopwatch.getLaps().forEach((lap) => {
-                rows.push(getCell(getFormattedTime(lap), lap));
+            const rows = [getCell(stopwatch.getTitle(), stopwatch.getTitle() + index)];
+            stopwatch.getLaps().forEach((lap, i) => {
+                rows.push(getCell(getFormattedTime(lap), stopwatch.getTitle() + lap + ":" + i));
             });
             columns.push(rows);
         });
         return columns;
     }
     render() {
-        return React.createElement(ScrollView, { style: STYLES.container, horizontal: true, directionalLockEnabled: false }, this.getColumns().map((rows, index) => {
-            return React.createElement(View, { key: index, style: STYLES.column }, rows);
-        }));
+        return React.createElement(ScrollView, { style: STYLES.container },
+            React.createElement(ScrollView, { style: STYLES.container, horizontal: true }, this.getColumns().map((rows, index) => {
+                return React.createElement(View, { key: index, style: STYLES.column }, rows);
+            })));
     }
 }
 export default ReactRedux.connect(mapStateToProps)(Report);
