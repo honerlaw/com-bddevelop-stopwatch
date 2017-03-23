@@ -6,10 +6,10 @@ import StopwatchList from "./component/stopwatch-list";
 import Report from "./component/report";
 import { mapStateToProps, mapDispatchToProps } from "./store";
 import StopwatchData from "./stopwatch-data";
-import { getHighestLapCount } from "./util";
+import { getHighestLapCount, HEADER_COLOR } from "./util";
 const STYLES = StyleSheet.create({
     navbar: {
-        backgroundColor: "#27ae60",
+        backgroundColor: HEADER_COLOR,
         justifyContent: "center",
         alignItems: "center"
     },
@@ -97,8 +97,7 @@ class App extends React.Component {
     add() {
         const stopwatches = this.props.stopwatches;
         stopwatches.push(new StopwatchData("Stopwatch " + stopwatches.length));
-        // create a shallow copy in a new array to trigger redux to update properly
-        this.props.setStopwatches(stopwatches.slice());
+        this.props.setStopwatches(stopwatches);
     }
     render() {
         return React.createElement(Navigator, { navigationBar: React.createElement(Navigator.NavigationBar, { style: STYLES.navbar, routeMapper: this.routeMapper() }), initialRoute: INITIAL_ROUTE, renderScene: renderScene, configureScene: configureScene, sceneStyle: STYLES.scene });

@@ -1,6 +1,7 @@
 import {Store, createStore, Action} from "redux";
 import StopwatchData from "./stopwatch-data";
 import {Dispatch} from "react-redux";
+import {AsyncStorage} from "react-native";
 
 export interface IStoreDispatch {
     setStopwatches: (stopwatches: StopwatchData[]) => void;
@@ -27,18 +28,43 @@ interface IForceAction extends Action {
 
 type StoreAction = IStopwatchAction | IForceAction | Action;
 
+const STOPWATCH_KEY: string = "stopwatches";
+
+AsyncStorage.getItem(STOPWATCH_KEY).then((data) => {
+    const stopwatches: StopwatchData[] = JSON.parse(data);
+    if (stopwatches === null || stopwatches.length === 0) {
+        throw Error("no saved stopwatches found.");
+    } else {
+        // convert the object to an instance of a class
+        for (let i = 0; i < stopwatches.length; ++i) {
+            stopwatches[ i ] = Object.assign(new StopwatchData((stopwatches[ i ] as any).title), stopwatches[ i ]);
+        }
+        setStopwatches(stopwatches);
+    }
+}).catch(() => {
+    setStopwatches([ new StopwatchData("Stopwatch 0") ]);
+});
+
+function save(stopwatches: StopwatchData[]): void {
+    const data: string = JSON.stringify(stopwatches);
+    AsyncStorage.setItem(STOPWATCH_KEY, JSON.stringify(stopwatches));
+}
+
 const INITIAL_STATE: IStoreState = {
-    stopwatches: [ new StopwatchData("Stopwatch 0") ],
+    stopwatches: [],
     force: Math.random()
 };
 
 const reducer = (state: IStoreState = INITIAL_STATE, action: StoreAction) => {
     switch (action.type) {
         case ActionType.STOPWATCHES:
+            const stopwatches: StopwatchData[] = (action as IStopwatchAction).stopwatches;
+            save(stopwatches);
             return Object.assign({}, state, {
-                stopwatches: (action as IStopwatchAction).stopwatches
+                stopwatches
             });
         case ActionType.FORCE:
+            save(state.stopwatches);
             return Object.assign({}, state, {
                 force: (action as IForceAction).force
             });
@@ -58,6 +84,7 @@ function set<S extends Action>(data: S, dispatch?: Dispatch<S>): void {
 }
 
 export function setStopwatches(stopwatches: StopwatchData[], dispatch?: Dispatch<IStopwatchAction>): void {
+    stopwatches = stopwatches.slice();
     set<IStopwatchAction>({
         type: ActionType.STOPWATCHES,
         stopwatches

@@ -3,7 +3,7 @@ import * as ReactRedux from "react-redux";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { mapStateToProps, mapDispatchToProps } from "../store";
-import { getFormattedTime } from "../util";
+import { getFormattedTime, PRIMARY_COLOR } from "../util";
 const STYLES = StyleSheet.create({
     container: {
         flex: 1,
@@ -42,7 +42,7 @@ const STYLES = StyleSheet.create({
     },
     button: {
         borderWidth: 1,
-        borderColor: "#95a5a6",
+        borderColor: PRIMARY_COLOR,
         justifyContent: "center",
         alignItems: "center",
         height: 50,
@@ -55,7 +55,10 @@ const STYLES = StyleSheet.create({
     },
     lap: {
         fontSize: 11,
-        color: "#95a5a6"
+        color: PRIMARY_COLOR
+    },
+    closeButton: {
+        color: PRIMARY_COLOR
     }
 });
 class Stopwatch extends React.Component {
@@ -108,11 +111,12 @@ class Stopwatch extends React.Component {
         const stopwatches = this.props.stopwatches;
         const index = stopwatches.indexOf(this.props.stopwatch);
         stopwatches.splice(index, 1);
-        this.props.setStopwatches(stopwatches.slice());
+        this.props.setStopwatches(stopwatches);
     }
     setTitle(title) {
         this.setState({ title });
         this.props.stopwatch.setTitle(title);
+        this.props.setForce(Math.random());
     }
     getLastLapInfo() {
         const laps = this.props.stopwatch.getLaps();
@@ -131,7 +135,7 @@ class Stopwatch extends React.Component {
             React.createElement(View, { style: STYLES.topContainer },
                 React.createElement(TextInput, { style: STYLES.title, value: this.state.title, onChangeText: this.setTitle.bind(this) }),
                 React.createElement(TouchableOpacity, { style: [STYLES.button, { borderWidth: 0 }], onPress: this.remove.bind(this) },
-                    React.createElement(Icon, { name: "remove", size: 15 }))),
+                    React.createElement(Icon, { name: "close", size: 18, style: STYLES.closeButton }))),
             React.createElement(View, { style: STYLES.bottomContainer },
                 React.createElement(View, { style: STYLES.middleBigContainer },
                     React.createElement(Text, { style: STYLES.time }, getFormattedTime(this.state.elapsed)),

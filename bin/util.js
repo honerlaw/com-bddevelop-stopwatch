@@ -1,3 +1,6 @@
+const COLORS = ["#e74c3c", "#2ecc71", "#9b59b6", "#3498db", "#1abc9c"];
+export const PRIMARY_COLOR = "#95a5a6";
+export const HEADER_COLOR = COLORS[Math.floor(Math.random() * COLORS.length)];
 export function getFormattedTime(ms) {
     const minutes = Math.floor((ms / (60 * 1000)) % (60 * 60));
     const seconds = Math.floor((ms / 1000) % 60);

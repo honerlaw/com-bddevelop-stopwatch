@@ -4,7 +4,7 @@ import {View, ViewStyle, Text, TextStyle, TextInput, StyleSheet, TouchableOpacit
 import Icon from "react-native-vector-icons/MaterialIcons";
 import StopwatchData from "../stopwatch-data";
 import {mapStateToProps, mapDispatchToProps, IStoreState, IStoreDispatch} from "../store";
-import {getFormattedTime} from "../util";
+import {getFormattedTime, PRIMARY_COLOR} from "../util";
 
 interface IStopwatchState {
     title: string;
@@ -27,6 +27,7 @@ interface IStyle {
     button: ViewStyle;
     buttonText: TextStyle;
     lap: TextStyle;
+    closeButton: TextStyle;
 }
 
 const STYLES = StyleSheet.create<IStyle>({
@@ -67,7 +68,7 @@ const STYLES = StyleSheet.create<IStyle>({
     },
     button: {
         borderWidth: 1,
-        borderColor: "#95a5a6",
+        borderColor: PRIMARY_COLOR,
         justifyContent: "center",
         alignItems: "center",
         height: 50,
@@ -80,7 +81,10 @@ const STYLES = StyleSheet.create<IStyle>({
     },
     lap: {
         fontSize: 11,
-        color: "#95a5a6"
+        color: PRIMARY_COLOR
+    },
+    closeButton: {
+        color: PRIMARY_COLOR
     }
 });
 
@@ -139,12 +143,13 @@ class Stopwatch extends React.Component<IStopwatchProps, IStopwatchState> {
         const stopwatches: StopwatchData[] = this.props.stopwatches;
         const index: number = stopwatches.indexOf(this.props.stopwatch);
         stopwatches.splice(index, 1);
-        this.props.setStopwatches(stopwatches.slice());
+        this.props.setStopwatches(stopwatches);
     }
 
     private setTitle(title: string): void {
         this.setState({ title });
         this.props.stopwatch.setTitle(title);
+        this.props.setForce(Math.random());
     }
 
     private getLastLapInfo(): React.ReactElement<Text> {
@@ -171,7 +176,7 @@ class Stopwatch extends React.Component<IStopwatchProps, IStopwatchState> {
                            onChangeText={ this.setTitle.bind(this) } />
                 <TouchableOpacity style={ [STYLES.button, { borderWidth: 0 } as ViewStyle] }
                                   onPress={ this.remove.bind(this) }>
-                    <Icon name="remove" size={ 15 } />
+                    <Icon name="close" size={ 18 } style={ STYLES.closeButton } />
                 </TouchableOpacity>
             </View>
             <View style={ STYLES.bottomContainer }>

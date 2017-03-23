@@ -16,7 +16,7 @@ import StopwatchList from "./component/stopwatch-list";
 import Report from "./component/report";
 import {mapStateToProps, IStoreState, IStoreDispatch, mapDispatchToProps} from "./store";
 import StopwatchData from "./stopwatch-data";
-import {getHighestLapCount} from "./util";
+import {getHighestLapCount, HEADER_COLOR} from "./util";
 
 interface IAppProps extends IStoreState, IStoreDispatch {
 
@@ -33,7 +33,7 @@ interface IStyles {
 
 const STYLES: IStyles = StyleSheet.create<IStyles>({
     navbar: {
-        backgroundColor: "#27ae60",
+        backgroundColor: HEADER_COLOR,
         justifyContent: "center",
         alignItems: "center"
     },
@@ -134,9 +134,7 @@ class App extends React.Component<IAppProps, void> {
     private add() {
         const stopwatches: StopwatchData[] = this.props.stopwatches;
         stopwatches.push(new StopwatchData("Stopwatch " + stopwatches.length));
-
-        // create a shallow copy in a new array to trigger redux to update properly
-        this.props.setStopwatches(stopwatches.slice());
+        this.props.setStopwatches(stopwatches);
     }
 
     public render(): React.ReactElement<View> {
