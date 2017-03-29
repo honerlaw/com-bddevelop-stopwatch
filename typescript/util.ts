@@ -1,9 +1,7 @@
 import StopwatchData from "./stopwatch-data";
 
-const COLORS: string[] = [ "#e74c3c", "#2ecc71", "#9b59b6", "#3498db", "#1abc9c" ];
-
 export const PRIMARY_COLOR: string = "#95a5a6";
-export const HEADER_COLOR: string = COLORS[ Math.floor(Math.random() * COLORS.length) ];
+export const HEADER_COLOR: string = "#3498db";
 
 export function getFormattedTime(ms: number): string {
     const minutes: number = Math.floor((ms / (60 * 1000)) % (60 * 60));
